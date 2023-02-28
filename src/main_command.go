@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"mydocker/src/cgroups/subsystems"
 	"mydocker/src/command"
 	"mydocker/src/container"
 
@@ -18,6 +19,18 @@ var runCommand = cli.Command{
 			Name:  "it",
 			Usage: "enable tty",
 		},
+		cli.StringFlag{
+			Name:  "m",
+			Usage: "memory limit",
+		},
+		cli.StringFlag{
+			Name:  "cpushare",
+			Usage: "cpushare limit",
+		},
+		cli.StringFlag{
+			Name:  "cpuset",
+			Usage: "cpuset limit",
+		},
 	},
 	Action: func(context *cli.Context) error {
 		// 这里是实际执行的函数
@@ -27,9 +40,18 @@ var runCommand = cli.Command{
 		if len(context.Args()) < 1 {
 			return fmt.Errorf("Missing container command")
 		}
-		cmd := context.Args().Get(0)
+		var cmdArrary []string
+		for _, arg := range context.Args() {
+			cmdArrary = append(cmdArrary, arg)
+		}
 		tty := context.Bool("it")
-		command.Run(tty, cmd)
+		// 添加资源限制
+		resConf := &subsystems.ResourceConfig{
+			MemoryLimit: context.String("m"),
+			CpuSet:      context.String("cpuset"),
+			CpuShare:    context.String("cpushare"),
+		}
+		command.Run(tty, cmdArrary, resConf)
 		return nil
 	},
 }
@@ -45,7 +67,7 @@ var initCommand = cli.Command{
 		logrus.Infof("init come on")
 		cmd := context.Args().Get(0)
 		logrus.Infof("command %s", cmd)
-		err := container.RunContainerInitProcess(cmd, nil)
+		err := container.RunContainerInitProcess()
 		return err
 	},
 }

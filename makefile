@@ -6,8 +6,7 @@ SRC_PATH=src
 all:clean build install
 
 build:
-		$(GO_PATH)/$(CMD) build -o $(BIN_PATH)/mydocker $(SRC_PATH)/main.go
-install: 
+		$(GO_PATH)/$(CMD) build -o $(BIN_PATH)/mydocker $(SRC_PATH)/*.go
 		cp bin/mydocker /usr/bin/mydocker
 		cp bin/mydocker /usr/local/bin/mydocker	
 		# mkdir -p /var/lib/mydocker/images
